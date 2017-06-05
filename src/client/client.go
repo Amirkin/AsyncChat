@@ -3,6 +3,7 @@ package client
 import (
 	"net"
 	"fmt"
+	"log"
 )
 
 type ChatClient struct {
@@ -10,8 +11,12 @@ type ChatClient struct {
 	conn net.Conn
 }
 
-func NewChatClient() *ChatClient {
+// default text buffer length
+const bufferLength  = 1024
+
+func NewChatClient(name string) *ChatClient {
 	var chatClient ChatClient
+	chatClient.nickname = name
 	return &chatClient
 }
 
@@ -30,4 +35,19 @@ func (this * ChatClient) Write(text string) {
 
 func (this *ChatClient) IsConnect() bool {
 	return this.IsConnect()
+}
+
+func (this *ChatClient) GetMessage() string {
+	log.Println("Called GetMessage() method")
+
+	buffer := make([]byte, bufferLength)
+
+	_, err := this.conn.Read(buffer)
+	if err != nil {
+		log.Fatalln("Error message reading!")
+	}
+
+	var msg = "Test reading len: "
+	this.conn.Write([]byte(msg))
+	return msg
 }

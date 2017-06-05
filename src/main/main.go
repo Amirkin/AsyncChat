@@ -17,9 +17,11 @@ func main() {
 			}
 		case "client":
 			{
-				client := client.NewChatClient()
+				client := client.NewChatClient("mainClient")
 				client.Connect()
 				client.Write("какой то текст")
+				msg := client.GetMessage()
+				println(msg)
 			}
 		}
 
