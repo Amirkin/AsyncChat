@@ -23,6 +23,7 @@ func accept(conn net.Conn) {
 		log.Fatalln(err.Error())
 		return
 	}
+	//TODO необходима структура для сообщения, иначе непонятно от кого месседж
 	fmt.Println(string(buffer))
 }
 
