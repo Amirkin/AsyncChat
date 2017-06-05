@@ -4,7 +4,17 @@ import (
 	"os"
 	"server"
 	"client"
+	"fmt"
+	"sync"
 )
+
+func loopGetMessage(client *client.ChatClient) {
+	client.Write("какой то текст")
+	for {
+		msg := client.GetMessage()
+		fmt.Println(msg)
+	}
+}
 
 func main() {
 	if len(os.Args) == 2 {
@@ -19,9 +29,10 @@ func main() {
 			{
 				client := client.NewChatClient("mainClient")
 				client.Connect()
-				client.Write("какой то текст")
-				msg := client.GetMessage()
-				println(msg)
+				var wg sync.WaitGroup
+				wg.Add(1)
+				go loopGetMessage(client)
+				wg.Wait()
 			}
 		}
 

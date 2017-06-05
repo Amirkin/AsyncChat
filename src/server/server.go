@@ -8,6 +8,8 @@ import (
 
 type ChatServer struct {
 	listener net.Listener
+	clients  []net.Conn
+	input    chan []byte
 }
 
 func NewChatServer() *ChatServer {
@@ -15,16 +17,28 @@ func NewChatServer() *ChatServer {
 	return &chatServer
 }
 
-func accept(conn net.Conn) {
+func (this *ChatServer) accept(conn net.Conn) {
 	log.Println("client was connected")
-	buffer := make([]byte, 81920)
-	_, err := conn.Read(buffer)
-	if err != nil {
-		log.Fatalln(err.Error())
-		return
+	for {
+		buffer := make([]byte, 81920)
+		_, err := conn.Read(buffer)
+		if err != nil {
+			log.Fatalln(err.Error())
+			return
+		}
+		//TODO необходима структура для сообщения, иначе непонятно от кого месседж
+		fmt.Println(string(buffer))
+		this.input <- buffer
 	}
-	//TODO необходима структура для сообщения, иначе непонятно от кого месседж
-	fmt.Println(string(buffer))
+}
+
+func (this *ChatServer) SendAll() {
+	for {
+		messageText := <-this.input
+		for _, client := range this.clients {
+			client.Write(messageText)
+		}
+	}
 }
 
 func (this *ChatServer) Start() {
@@ -34,8 +48,12 @@ func (this *ChatServer) Start() {
 		log.Fatalln(err.Error())
 		return
 	}
+
+	go this.SendAll()
+
 	for {
 		conn, _ := this.listener.Accept()
-		go accept(conn)
+		this.clients = append(this.clients, conn)
+		go this.accept(conn)
 	}
 }

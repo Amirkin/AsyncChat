@@ -12,7 +12,7 @@ type ChatClient struct {
 }
 
 // default text buffer length
-const bufferLength  = 1024
+const bufferLength  = 81920
 
 func NewChatClient(name string) *ChatClient {
 	var chatClient ChatClient
