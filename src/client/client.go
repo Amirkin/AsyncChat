@@ -8,11 +8,11 @@ import (
 
 type ChatClient struct {
 	nickname string
-	conn net.Conn
+	conn     net.Conn
 }
 
 // default text buffer length
-const bufferLength  = 81920
+const bufferLength = 81920
 
 func NewChatClient(name string) *ChatClient {
 	var chatClient ChatClient
@@ -20,7 +20,7 @@ func NewChatClient(name string) *ChatClient {
 	return &chatClient
 }
 
-func (this * ChatClient) Connect() {
+func (this *ChatClient) Connect() {
 	var err error
 	this.conn, err = net.Dial("tcp", "127.0.0.1:5000")
 	if err != nil {
@@ -29,7 +29,7 @@ func (this * ChatClient) Connect() {
 	}
 }
 
-func (this * ChatClient) Write(text string) {
+func (this *ChatClient) Write(text string) {
 	this.conn.Write([]byte(text))
 }
 
@@ -42,12 +42,11 @@ func (this *ChatClient) GetMessage() string {
 
 	buffer := make([]byte, bufferLength)
 
-	_, err := this.conn.Read(buffer)
+	n, err := this.conn.Read(buffer)
 	if err != nil {
 		log.Fatalln("Error message reading!")
 	}
 
-	var msg = "Test reading len: "
-	this.conn.Write([]byte(msg))
-	return msg
+	this.conn.Write(buffer[:n])
+	return string(buffer[:n])
 }

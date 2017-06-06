@@ -34,7 +34,9 @@ func (this *ChatServer) accept(conn net.Conn) {
 
 func (this *ChatServer) SendAll() {
 	for {
-		messageText := <-this.input
+		log.Println("SendAll()")
+		messageText := <- this.input
+		log.Println("messageText = " + string(messageText))
 		for _, client := range this.clients {
 			client.Write(messageText)
 		}
@@ -42,6 +44,7 @@ func (this *ChatServer) SendAll() {
 }
 
 func (this *ChatServer) Start() {
+	this.input = make(chan []byte)
 	var err error
 	this.listener, err = net.Listen("tcp", "127.0.0.1:5000")
 	if err != nil {
