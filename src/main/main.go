@@ -12,7 +12,7 @@ import (
 )
 
 func protocol(client *client.ChatClient) {
-	client.Write("NICK " + client.GetNickName())
+	client.SendNick()
 }
 
 func loopGetMessage(client *client.ChatClient) {

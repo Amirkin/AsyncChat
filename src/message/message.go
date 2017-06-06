@@ -20,36 +20,38 @@ type Message struct {
 func (this *Message) Serialize() []byte {
 	buf := new(bytes.Buffer)
 
-	writeStringWithLen(buf, this.Nick)
-	writeStringWithLen(buf, this.Text)
+	WriteStringWithLen(buf, this.Nick)
+	WriteStringWithLen(buf, this.Text)
 
 	return buf.Bytes()
 }
 
 func (this *Message) Deserialize(buffer []byte) {
-	this.Nick, buffer = readStringWithLength(buffer)
-	this.Text, buffer = readStringWithLength(buffer)
+	this.Nick, buffer = ReadStringWithLength(buffer)
+	this.Text, buffer = ReadStringWithLength(buffer)
 }
 
-func readInt(buf []byte) ( value int, buffer []byte) {
+
+// TODO: функции что далее, нужно вынести по далее.
+func ReadInt(buf []byte) ( value int, buffer []byte) {
 	value = int(binary.BigEndian.Uint32(buf[:4]))
 	buffer = buf[4:]
 	return
 }
 
-func readString(buf []byte, n int) (value string, buffer []byte) {
+func ReadString(buf []byte, n int) (value string, buffer []byte) {
 	value = string(buf[:n])
 	buffer = buf[n:]
 	return
 }
 
-func readStringWithLength(buf []byte) (value string, buffer []byte) {
-	n, buf := readInt(buf)
-	value, buffer = readString(buf, n)
+func ReadStringWithLength(buf []byte) (value string, buffer []byte) {
+	n, buf := ReadInt(buf)
+	value, buffer = ReadString(buf, n)
 	return
 }
 
-func writeInt(buf *bytes.Buffer, value int32) {
+func WriteInt(buf *bytes.Buffer, value int32) {
 	err := binary.Write(buf, binary.BigEndian, value)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -57,7 +59,7 @@ func writeInt(buf *bytes.Buffer, value int32) {
 	}
 }
 
-func writeString(buf *bytes.Buffer, value string) {
+func WriteString(buf *bytes.Buffer, value string) {
 	err := binary.Write(buf, binary.BigEndian, []byte(value))
 	if err != nil {
 		fmt.Println(err.Error())
@@ -65,7 +67,7 @@ func writeString(buf *bytes.Buffer, value string) {
 	}
 }
 
-func writeStringWithLen(buf *bytes.Buffer, value string) {
-	writeInt(buf, int32(len(value)))
-	writeString(buf, value)
+func WriteStringWithLen(buf *bytes.Buffer, value string) {
+	WriteInt(buf, int32(len(value)))
+	WriteString(buf, value)
 }

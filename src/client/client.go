@@ -4,7 +4,10 @@ import (
 	"net"
 	"fmt"
 	"log"
+	"utils"
+	"message"
 )
+
 
 type ChatClient struct {
 	nickname string
@@ -33,8 +36,25 @@ func (this *ChatClient) Write(text string) {
 	this.conn.Write([]byte(text))
 }
 
+func (this *ChatClient) SendNick() {
+	command.SendCommandString(this.conn, command.NICK, this.nickname)
+}
+
 func (this *ChatClient) IsConnect() bool {
 	return this.IsConnect()
+}
+
+func (this *ChatClient) GetByteMessage() []byte {
+	log.Println("Called GetByteMessage() method")
+
+	buffer := make([]byte, bufferLength)
+
+	n, err := this.conn.Read(buffer)
+	if err != nil {
+		log.Fatalln("Error message reading!")
+	}
+
+	return buffer[:n]
 }
 
 func (this *ChatClient) GetMessage() string {
@@ -55,5 +75,5 @@ func (this *ChatClient) GetNickName() string {
 }
 
 func (this *ChatClient) SendMessage(msg string) {
-	this.Write("MSG " + msg)
+	command.SendCommandString(this.conn, command.MSG, msg)
 }
