@@ -36,6 +36,8 @@ func NewChatServer() *ChatServer {
 	return &chatServer
 }
 
+// Метод который будет работать при подключении клиента
+// Далее читать все данные из потока
 func (this *ChatServer) accept(user User) {
 	log.Println("client was connected")
 	buffer := make([]byte, 81920)
@@ -62,9 +64,13 @@ func (this *ChatServer) accept(user User) {
 			{
 				data := DataCmd{}
 				data.cmd = command.MSG
+
+				// Это сделано, что бы потом в БД записывать
+				// но вообще структура сообщений ощень стрёмная, надо менять
 				msg := message.Message{}
 				msg.Nick = user.nickname
 				msg.Text = string(buf[4:])
+
 				data.data = msg.Serialize()
 
 				this.input <- data
@@ -73,6 +79,7 @@ func (this *ChatServer) accept(user User) {
 	}
 }
 
+// отправляет команды всем подключённым клиентам
 func (this *ChatServer) SendAll() {
 	for {
 		log.Println("SendAll()")
