@@ -14,9 +14,9 @@ type ChatClient struct {
 // default text buffer length
 const bufferLength = 81920
 
-func NewChatClient(name string) *ChatClient {
+func NewChatClient(nickname string) *ChatClient {
 	var chatClient ChatClient
-	chatClient.nickname = name
+	chatClient.nickname = nickname
 	return &chatClient
 }
 
@@ -47,6 +47,9 @@ func (this *ChatClient) GetMessage() string {
 		log.Fatalln("Error message reading!")
 	}
 
-	this.conn.Write(buffer[:n])
 	return string(buffer[:n])
+}
+
+func (this *ChatClient) GetNickName() string {
+	return this.nickname
 }

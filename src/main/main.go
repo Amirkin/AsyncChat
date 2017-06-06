@@ -5,18 +5,29 @@ import (
 	"server"
 	"client"
 	"fmt"
-	"sync"
+	"bufio"
+	"strings"
 )
 
 func loopGetMessage(client *client.ChatClient) {
-	client.Write("какой то текст")
+	client.Write("В чат вошёл: " + client.GetNickName())
 	for {
 		msg := client.GetMessage()
 		fmt.Println(msg)
 	}
 }
 
+func inputMessage(client *client.ChatClient) {
+	in := bufio.NewReader(os.Stdin)
+	for {
+		line, _ := in.ReadString('\n')
+		line = strings.Trim(line, "\n")
+		client.Write(line)
+	}
+}
+
 func main() {
+
 	if len(os.Args) == 2 {
 
 		switch os.Args[1] {
@@ -27,14 +38,18 @@ func main() {
 			}
 		case "client":
 			{
-				client := client.NewChatClient("mainClient")
+				client := client.NewChatClient(enterNickName())
 				client.Connect()
-				var wg sync.WaitGroup
-				wg.Add(1)
 				go loopGetMessage(client)
-				wg.Wait()
+				inputMessage(client)
 			}
 		}
 
 	}
+}
+func enterNickName() string {
+	var nickname string
+	fmt.Println("Как вас зовут?")
+	fmt.Scanf("%s", &nickname)
+	return nickname
 }

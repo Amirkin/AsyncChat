@@ -19,16 +19,16 @@ func NewChatServer() *ChatServer {
 
 func (this *ChatServer) accept(conn net.Conn) {
 	log.Println("client was connected")
+	buffer := make([]byte, 81920)
 	for {
-		buffer := make([]byte, 81920)
-		_, err := conn.Read(buffer)
+		n, err := conn.Read(buffer)
 		if err != nil {
 			log.Fatalln(err.Error())
 			return
 		}
 		//TODO необходима структура для сообщения, иначе непонятно от кого месседж
-		fmt.Println(string(buffer))
-		this.input <- buffer
+		fmt.Println(string(buffer[:n]))
+		this.input <- buffer[:n]
 	}
 }
 
