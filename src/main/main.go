@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"bufio"
 	"strings"
+	"log"
+	"io"
 )
 
 func loopGetMessage(client *client.ChatClient) {
@@ -27,6 +29,9 @@ func inputMessage(client *client.ChatClient) {
 }
 
 func main() {
+	logFile, _ := os.OpenFile("main.log", os.O_CREATE|os.O_APPEND, 0)
+	mw := io.MultiWriter(os.Stdout, logFile)
+	log.SetOutput(mw)
 
 	if len(os.Args) == 2 {
 
