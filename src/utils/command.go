@@ -10,6 +10,7 @@ const (
 	NEWUSER = 1
 	MSG = 2
 	NICK = 3
+	USER_ENTER = 4
 )
 
 func GetCommand(buf []byte) (cmd int, buffer []byte) {
