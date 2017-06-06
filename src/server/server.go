@@ -2,19 +2,20 @@ package server
 
 import (
 	"net"
-	"fmt"
 	"log"
-	"strings"
+	"utils"
+	"message"
+	"bytes"
 )
 
 type User struct {
 	nickname string
-	conn net.Conn
+	conn     net.Conn
 }
 
 type ChatServer struct {
 	listener net.Listener
-	users []User
+	users    []User
 	input    chan []byte
 }
 
@@ -32,20 +33,21 @@ func (this *ChatServer) accept(user User) {
 			log.Fatalln(err.Error())
 			return
 		}
-		//TODO необходима структура для сообщения, иначе непонятно от кого месседж
-		msg := string(buffer[:n])
-		fmt.Println(msg)
 
-		if strings.HasPrefix(msg, "NICK ") {
-			msg = strings.TrimPrefix(msg, "NICK ")
-			user.nickname = msg
-			msg = "NEWUSER " + user.nickname
+		var msg string
+		cmd, buf := command.GetCommand(buffer[:n])
+		switch cmd {
+		case command.NICK:
+			{
+				name, _ := message.ReadStringWithLength(buf)
+				log.Println(" В чат вошёл: " + name)
+				msg = " В чат вошёл: " + name
+			}
+		case command.MSG:
+			{
+				msg, _ = message.ReadStringWithLength(buf)
+			}
 		}
-
-		if strings.HasPrefix(msg, "MSG ") {
-			msg = "MSG " + user.nickname + ": " + strings.TrimPrefix(msg, "MSG ")
-		}
-
 
 		this.input <- []byte(msg)
 	}
@@ -54,7 +56,7 @@ func (this *ChatServer) accept(user User) {
 func (this *ChatServer) SendAll() {
 	for {
 		log.Println("SendAll()")
-		messageText := <- this.input
+		messageText := <-this.input
 		log.Println("messageText = " + string(messageText))
 
 		for _, user := range this.users {
