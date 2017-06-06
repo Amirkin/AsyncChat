@@ -53,3 +53,7 @@ func (this *ChatClient) GetMessage() string {
 func (this *ChatClient) GetNickName() string {
 	return this.nickname
 }
+
+func (this *ChatClient) SendMessage(msg string) {
+	this.Write("MSG " + msg)
+}

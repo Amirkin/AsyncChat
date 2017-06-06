@@ -11,11 +11,21 @@ import (
 	"io"
 )
 
+func protocol(client *client.ChatClient) {
+	client.Write("NICK " + client.GetNickName())
+}
+
 func loopGetMessage(client *client.ChatClient) {
-	client.Write("В чат вошёл: " + client.GetNickName())
 	for {
 		msg := client.GetMessage()
-		fmt.Println(msg)
+		if strings.HasPrefix(msg, "MSG ") {
+			msg = strings.TrimPrefix(msg, "MSG ")
+			fmt.Println(msg)
+		}
+		if strings.HasPrefix(msg, "NEWUSER ") {
+			msg = strings.TrimPrefix(msg, "NEWUSER ")
+			fmt.Println(" В чат вошёл: " + msg)
+		}
 	}
 }
 
@@ -24,9 +34,11 @@ func inputMessage(client *client.ChatClient) {
 	for {
 		line, _ := in.ReadString('\n')
 		line = strings.Trim(line, "\n")
+		client.SendMessage(line)
 		client.Write(line)
 	}
 }
+
 
 func main() {
 	logFile, _ := os.OpenFile("main.log", os.O_CREATE|os.O_APPEND, 0)
@@ -45,6 +57,7 @@ func main() {
 			{
 				client := client.NewChatClient(enterNickName())
 				client.Connect()
+				protocol(client)
 				go loopGetMessage(client)
 				inputMessage(client)
 			}
