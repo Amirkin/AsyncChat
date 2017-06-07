@@ -11,6 +11,7 @@ import (
 type DataCmd struct {
 	cmd  int
 	data []byte
+	user User
 }
 
 func (this DataCmd) Serialize() []byte {
@@ -27,7 +28,7 @@ type User struct {
 
 type ChatServer struct {
 	listener net.Listener
-	users    []User
+	users    []*User
 	input    chan DataCmd
 }
 
@@ -38,14 +39,15 @@ func NewChatServer() *ChatServer {
 
 // Метод который будет работать при подключении клиента
 // Далее читать все данные из потока
-func (this *ChatServer) accept(user User) {
+func (this *ChatServer) accept(user *User) {
 	log.Println("client was connected")
 	buffer := make([]byte, 81920)
 	for {
 		n, err := user.conn.Read(buffer)
 		if err != nil {
-			log.Fatalln(err.Error())
-			return
+			this.removeUser(user)
+			log.Println(err.Error())
+			break
 		}
 
 		cmd, buf := command.GetCommand(buffer[:n])
@@ -72,11 +74,20 @@ func (this *ChatServer) accept(user User) {
 				msg.Text = string(buf[4:])
 
 				data.data = msg.Serialize()
-
 				this.input <- data
 			}
 		}
 	}
+}
+
+func (this *ChatServer) removeUser(user *User) {
+	var index int
+	for index = range this.users {
+		if this.users[index] == user {
+			break
+		}
+	}
+	this.users = append(this.users[:index], this.users[index + 1:]...)
 }
 
 // отправляет команды всем подключённым клиентам
@@ -106,8 +117,8 @@ func (this *ChatServer) Start() {
 		conn, _ := this.listener.Accept()
 		var user User
 		user.conn = conn
-		this.users = append(this.users, user)
+		this.users = append(this.users, &user)
 
-		go this.accept(user)
+		go this.accept(&user)
 	}
 }

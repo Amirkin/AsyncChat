@@ -49,6 +49,7 @@ func main() {
 	logFile, _ := os.OpenFile("main.log", os.O_CREATE|os.O_APPEND, 0)
 	mw := io.MultiWriter(os.Stdout, logFile)
 	log.SetOutput(mw)
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
 	if len(os.Args) == 2 {
 
@@ -70,6 +71,7 @@ func main() {
 
 	}
 }
+
 func enterNickName() string {
 	var nickname string
 	fmt.Println("Как вас зовут?")
